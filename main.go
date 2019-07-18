@@ -1,7 +1,6 @@
 package main
 
 import (
-	"api/controller"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -216,6 +215,8 @@ type Replace struct {
 	TargetName      string
 	ProjectName     string
 	ProjectURL      string
+	OriginName      string
+	ToID            string
 }
 
 func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
@@ -264,7 +265,7 @@ func createResponse(reqBody []byte) string {
 
 	var jsonStr string
 	if data.ObjectAttributes.Action == "open" {
-		jsonStr = `{"username":"test","text": "#### 新たなマージリクエストをオープンしました。確認お願いします。:bow:\n
+		jsonStr = `{"text": "@{{.ToID}}\n#### 新たなマージリクエストをオープンしました。確認お願いします。:bow:\n
 | タイトル | 内容                                   |
 |:--------|:---------------------------------------|
 | リクエスト名 | [{{.Title}}]({{.MergeRequestURL}}) |
@@ -277,7 +278,7 @@ func createResponse(reqBody []byte) string {
 |:--------|:---------------------------------------|
 | リクエスト名 | [{{.Title}}]({{.MergeRequestURL}}) |
 | プロジェクト名 | [{{.ProjectName}}]({{.ProjectURL}}) |
-| 依頼者 | {{.Name}}                                |
+| 依頼者 | {{.OriginName}}                                |
 | マージ者 | {{.TargetName}}"}                        |`
 	} else {
 		return ""
@@ -297,6 +298,8 @@ func createResponse(reqBody []byte) string {
 		TargetName:      data.Assignees[0].Name,
 		ProjectName:     data.Project.Name,
 		ProjectURL:      data.Project.WebURL,
+		OriginName:      data.ObjectAttributes.LastCommit.Author.Name,
+		ToID:            data.Assignees[0].Username,
 	}
 
 	err = msg.Execute(&resultMessage, replace)
@@ -317,16 +320,16 @@ func main() {
 		})
 	})
 
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, Response{
-			Status:  http.StatusOK,
-			Message: "aaa",
-		})
-	})
+	// e.GET("/", func(c echo.Context) error {
+	// 	return c.JSON(http.StatusOK, Response{
+	// 		Status:  http.StatusOK,
+	// 		Message: "aaa",
+	// 	})
+	// })
 
-	e.GET("/api", func(c echo.Context) error {
-		return c.String(http.StatusOK, controller.GetAPI())
-	})
+	// e.GET("/api", func(c echo.Context) error {
+	// 	return c.String(http.StatusOK, controller.GetAPI())
+	// })
 
 	e.Logger.Fatal(e.Start(":32333"))
 }
