@@ -273,7 +273,7 @@ func createResponse(reqBody []byte) string {
 | 依頼者 | {{.Name}}                                |
 | 依頼先 | {{.TargetName}}"}                        |`
 	} else if data.ObjectAttributes.Action == "merge" {
-		jsonStr = `{"text": "#### マージリクエストを許可しました。:tada::tada:\n
+		jsonStr = `{"text": "@{{.OriginName}}#### マージリクエストを許可しました。:tada::tada:\n
 | タイトル | 内容                                   |
 |:--------|:---------------------------------------|
 | リクエスト名 | [{{.Title}}]({{.MergeRequestURL}}) |
