@@ -221,16 +221,15 @@ type Replace struct {
 
 func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
 
+	fmt.Println("-------------------------開始------------------------------------")
+	fmt.Printf("Request Body: %v\n", string(reqBody))
+	fmt.Printf("Response Body: %v\n", string(resBody))
+
 	url := "http://10.148.152.52:10080/hooks/93xop6iha3y9pbqbthsrpt8iue"
 	returnMessage := createResponse(reqBody)
 	if returnMessage == "" {
 		fmt.Println("対象外")
-
 	} else {
-
-		fmt.Printf("Request Body: %v\n", string(reqBody))
-		fmt.Printf("Response Body: %v\n", string(resBody))
-
 		var jsonstr = []byte(returnMessage)
 
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonstr))
@@ -247,8 +246,8 @@ func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
 			fmt.Println()
 		}
 		defer resp.Body.Close()
+		fmt.Println("-------------------------終了------------------------------------")
 	}
-
 }
 
 func createResponse(reqBody []byte) string {
@@ -261,7 +260,6 @@ func createResponse(reqBody []byte) string {
 		os.Exit(1)
 	}
 	fmt.Println(data)
-	fmt.Println()
 
 	var jsonStr string
 	if data.ObjectAttributes.Action == "open" {
@@ -273,13 +271,13 @@ func createResponse(reqBody []byte) string {
 | 依頼者 | {{.Name}}                                |
 | 依頼先 | {{.TargetName}}"}                        |`
 	} else if data.ObjectAttributes.Action == "merge" {
-		jsonStr = `{"text": "@{{.OriginName}}#### マージリクエストを許可しました。:tada::tada:\n
+		jsonStr = `{"text": "#### マージリクエストを許可しました。:tada::tada:\n
 | タイトル | 内容                                   |
 |:--------|:---------------------------------------|
 | リクエスト名 | [{{.Title}}]({{.MergeRequestURL}}) |
 | プロジェクト名 | [{{.ProjectName}}]({{.ProjectURL}}) |
 | 依頼者 | {{.OriginName}}                                |
-| マージ者 | {{.TargetName}}"}                        |`
+| マージ者 | {{.Name}}"}                        |`
 	} else {
 		return ""
 	}
@@ -319,17 +317,6 @@ func main() {
 			Message: "aaa",
 		})
 	})
-
-	// e.GET("/", func(c echo.Context) error {
-	// 	return c.JSON(http.StatusOK, Response{
-	// 		Status:  http.StatusOK,
-	// 		Message: "aaa",
-	// 	})
-	// })
-
-	// e.GET("/api", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, controller.GetAPI())
-	// })
 
 	e.Logger.Fatal(e.Start(":32333"))
 }
