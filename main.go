@@ -95,6 +95,7 @@ type AttributeInfo struct {
 	HumanTimeEstimate string         `json:"human_time_estimate"`
 	AssigneeIDs       []int          `json:"assignee_ids"`
 	Action            string         `json:"action"`
+	Status            string         `json:"status"`
 }
 
 // Merge merge_params
@@ -226,6 +227,8 @@ func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
 	fmt.Printf("Response Body: %v\n", string(resBody))
 
 	url := "http://10.148.152.52:10080/hooks/93xop6iha3y9pbqbthsrpt8iue"
+	//url := "http://10.148.152.52:10080/hooks/7yd7u3tafiroxk5j774os9qtrw"
+
 	returnMessage := createResponse(reqBody)
 	if returnMessage == "" {
 		fmt.Println("対象外")
@@ -278,6 +281,10 @@ func createResponse(reqBody []byte) string {
 | プロジェクト名 | [{{.ProjectName}}]({{.ProjectURL}}) |
 | 依頼者 | {{.OriginName}}                                |
 | マージ者 | {{.Name}}"}                        |`
+	} else if data.ObjectAttributes.Status == "failed" {
+		jsonStr = `{"text": "@channel\n#### パイプラインが失敗しました :x::x::x::x::x:\n
+確認と修正をお願いします\n
+{{.ProjectURL}}/pipelines"}`
 	} else {
 		return ""
 	}
@@ -293,15 +300,31 @@ func createResponse(reqBody []byte) string {
 		Title:           data.ObjectAttributes.Title,
 		MergeRequestURL: data.ObjectAttributes.URL,
 		Name:            data.User.Name,
-		TargetName:      data.Assignees[0].Name,
+		TargetName:      getName(data),
 		ProjectName:     data.Project.Name,
 		ProjectURL:      data.Project.WebURL,
 		OriginName:      data.ObjectAttributes.LastCommit.Author.Name,
-		ToID:            data.Assignees[0].Username,
+		ToID:            getUserName(data),
 	}
 
 	err = msg.Execute(&resultMessage, replace)
 	return resultMessage.String()
+
+}
+
+func getName(data Data) string {
+	if len(data.Assignees) > 0 {
+		return data.Assignees[0].Name
+	}
+	return ""
+
+}
+
+func getUserName(data Data) string {
+	if len(data.Assignees) > 0 {
+		return data.Assignees[0].Username
+	}
+	return ""
 
 }
 
