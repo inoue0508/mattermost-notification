@@ -25,7 +25,7 @@ type Data struct {
 	User             UserInfo       `json:"user"`
 	Project          ProjectInfo    `json:"project"`
 	ObjectAttributes AttributeInfo  `json:"object_attributes"`
-	Labels           []string       `json:"labels"`
+	Labels           []LabelInfo    `json:"labels"`
 	Changes          ChangeInfo     `json:"changes"`
 	Repository       RepositoryInfo `json:"repository"`
 	Assignees        []AssigneeInfo `json:"assignees"`
@@ -68,7 +68,7 @@ type AttributeInfo struct {
 	ID                int            `json:"id"`
 	Iid               int            `json:"iid"`
 	LastEditedAt      string         `json:"last_edited_at"`
-	LastEditedByID    string         `json:"last_edited_by_id"`
+	LastEditedByID    int            `json:"last_edited_by_id"`
 	MergeCommitSha    string         `json:"merge_commit_sha"`
 	MergeError        string         `json:"merge_error"`
 	MergeParams       Merge          `json:"merge_params"`
@@ -158,6 +158,20 @@ type AuthorInfo struct {
 	Email string `json:"email"`
 }
 
+//LabelInfo label情報
+type LabelInfo struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Color       string `json:"color"`
+	ProjectID   int    `json:"project_id"`
+	CreatedAt   string `json:"created_at"`
+	UpdateAt    string `json:"updated_at"`
+	Template    bool   `json:"template"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+	GroupID     int    `json:"group_id"`
+}
+
 //ChangeInfo 変更点
 type ChangeInfo struct {
 	AuthorID        PastNowInt    `json:"author_id"`
@@ -226,8 +240,8 @@ func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
 	fmt.Printf("Request Body: %v\n", string(reqBody))
 	fmt.Printf("Response Body: %v\n", string(resBody))
 
-	url := "http://10.148.152.52:10080/hooks/93xop6iha3y9pbqbthsrpt8iue"
-	//url := "http://10.148.152.52:10080/hooks/7yd7u3tafiroxk5j774os9qtrw"
+	url := "http://mattermost.serviceinfra.sys.fip.fujitsu.com/hooks/93xop6iha3y9pbqbthsrpt8iue"
+	//url := "http://mattermost.serviceinfra.sys.fip.fujitsu.com/hooks/7yd7u3tafiroxk5j774os9qtrw"
 
 	returnMessage := createResponse(reqBody)
 	if returnMessage == "" {
